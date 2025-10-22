@@ -1,24 +1,26 @@
-// 暴露一个函数，success数据库连接成功的回调，error连接失败的回调
-module.exports = function (success, error = () => { console.log('连接失败'); }) {
+// db/db.js
+const mongoose = require('mongoose');
+const config = require('../config');
 
-  const mongoose = require('mongoose');
-  // 导入数据库连接配置文件
-  const config = require('../config');
+let cached = global.mongoose;
+if (!cached) cached = global.mongoose = { conn: null, promise: null };
 
-  // mongoose.connect(`mongodb://${HOST}:${PORT}/${NAME}`);
-  mongoose.connect(config.URL);
+module.exports = async function connectToDatabase() {
+  if (cached.conn) return cached.conn;
 
-  mongoose.connection.once('open', () => {
-    console.log('连接成功')
-    success();
-  });
-  // 设置连接错误的回调
-  mongoose.connection.on('error', () => {
-    error();
-  });
-  //设置连接关闭的回调
-  mongoose.connection.on('close', () => {
-    console.log('连接关闭');
-  });
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(config.URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }).then((mongoose) => {
+      console.log("✅ MongoDB connected");
+      return mongoose;
+    }).catch((err) => {
+      console.error("❌ MongoDB connect failed:", err);
+      throw err;
+    });
+  }
 
-}
+  cached.conn = await cached.promise;
+  return cached.conn;
+};
