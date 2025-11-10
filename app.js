@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 解决API跨域问题
-const allowedOrigins = ['http://127.0.0.1:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:3001', 'https://paste-max.vercel.app', 'http://localhost:4000', undefined];
+const allowedOrigins = ['http://127.0.0.1:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:3001', 'https://saonian.dpdns.org', 'https://paste-max.vercel.app', 'http://localhost:4000', undefined];
 app.all("/*", function (req, res, next) {
   if (allowedOrigins.includes(req.headers.origin)) {
     res.header('Access-Control-Allow-Origin', req.headers.origin);
